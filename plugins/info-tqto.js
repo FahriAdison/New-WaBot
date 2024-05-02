@@ -25,8 +25,6 @@ https://github.com/Johannes2803
 https://github.com/LitRHap
 *❉ Rlxfly:*
 https://github.com/Rlxfly
-*❉ Aine:*
-https://github.com/Aiinne
 *❉ Taylor/Wudy:*
 https://github.com/AyGemuy
 *▸ - - - —「 KANG RECODE 」— - - - ◂*
