@@ -1,58 +1,56 @@
-import tio from 'btch-downloader'
-import fetch from 'node-fetch'; 
+import axios from 'axios';
 
-let handler = async (m, { conn, text, args, usedPrefix, command }) => {
-    if (!args[0]) throw `Enter the link of the TikTok video`;
-    if (!args[0].match(/tiktok/gi)) throw `Make sure the link is from TikTok`;
-    conn.reply(m.chat, global.wait, m);
-    try {
-            let json = await tio.ttdl((args[0])) 
-            let fetchStartTime = new Date();
-            let fetchResponse = await fetch(args[0]);
-            let fetchEndTime = new Date();
-            let fetchTime = fetchEndTime - fetchStartTime;
-            let caption = `乂  *T I K T O K*\n\n`;
-        caption += `${json.title || '-'}\n`;
-        caption += `	◦  Fetching Time : ${fetchTime} ms`;        
-            conn.sendFile(m.chat, json.video, '', caption, m);       
-            await conn.sendMessage(m.chat, {
-                audio: {
-                    url: json.audio
-                },
-                mimetype: 'audio/mp4'
-            }, {
-                quoted: m
-            })                
-    } catch {
-    m.reply('☓ An unexpected error occurred');
-        try {
-            let res = await fetch(global.API('marin', '/api/download/tiktok', {
-                url: args[0]
-            }, 'apikey'));
-            let json = await res.json();
-            let fetchStartTime = new Date();
-            let fetchResponse = await fetch(args[0]);
-            let fetchEndTime = new Date();
-            let fetchTime = fetchEndTime - fetchStartTime;
-            let caption = `乂  *T I K T O K*\n\n`;
-            caption += `	◦  Author : ${json.result.nickname} (@${json.result.unique_id})\n`;
-            caption += `	◦  Download Count : ${json.result.download_count}\n`;
-            caption += `	◦  Duration : ${json.result.duration}\n`;
-            caption += `	◦  Fetching Time : ${fetchTime}ms\n`;
-
-            caption += `	◦  Caption : ${json.result.description || '-'}`;
-            conn.sendFile(m.chat, json.result.play, '', caption, m);
-    } catch {
-            m.reply('☓ An unexpected error occurred');
-        }
+let handler = async (m, { conn, text }) => {
+  if (!text) {
+    return conn.reply(m.chat, `• *Example :* .tiktok https://vm.tiktok.com/xxxxxxxxxxxxxx`, m);
+  }
+  if (!text.match(/tiktok/gi)) {
+    return conn.reply(m.chat, 'Make sure the link is from TikTok', m);
+  }
+  conn.sendMessage(m.chat, {
+    react: {
+      text: '🕒',
+      key: m.key,
     }
+  });
+  try {
+    let p = await Tiktok(`${text}`);
+    await conn.sendFile(m.chat, p.nowm, 'tiktok.mp4', p.title, m);
+    conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }});
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+handler.help = ['tiktok <url>']
+handler.tags = ['downloader'];
+handler.command = /^(tiktok|tt|tiktokdl|tiktoknowm)$/i;
+handler.limit = false;
+handler.group = false;
+handler.register = true;
+
+export default handler;
+
+const clean = (data) => {
+  let regex = /(<([^>]+)>)/gi;
+  data = data.replace(/(<br?\s?\/>)/gi, " \n");
+  return data.replace(regex, "");
+};
+
+async function shortener(url) {
+  return url;
 }
 
-handler.help = ['tiktok'].map((v) => v + ' <url>');
-handler.tags = ['downloader'];
-handler.command = /^t(t|iktok(d(own(load(er)?)?|l))?|td(own(load(er)?)?|l))$/i;
+async function Tiktok(url) {
+  let response = await axios.post("https://lovetik.com/api/ajax/search", new URLSearchParams(Object.entries({ query: url })));
 
-handler.register = true;
-handler.limit = true
-
-export default handler
+  let result = {};
+  result.creator = "Jhnspntx";
+  result.title = clean(response.data.desc);
+  result.author = clean(response.data.author);
+  result.nowm = await shortener((response.data.links[0].a || "").replace("https", "http"));
+  result.watermark = await shortener((response.data.links[1].a || "").replace("https", "http"));
+  result.audio = await shortener((response.data.links[2].a || "").replace("https", "http"));
+  result.thumbnail = await shortener(response.data.cover);
+  return result;
+}
