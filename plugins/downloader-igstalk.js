@@ -13,7 +13,6 @@ let handler = async (m, { command, text, conn }) => {
 👤 *Username:* ${result.username}
 ❤️ *Followers:* ${result.followers}
 💙 *Following:* ${result.following}
-📅 *Posts:* ${result.post}
 📝 *Bio:*
 ${result.description}
         `.trim(), m);
@@ -23,7 +22,7 @@ ${result.description}
 };
 
 handler.help = ['igstalk'].map(v => v + ' <username>');
-handler.tags = ['tools'];
+handler.tags = ['downloader'];
 handler.register = true;
 handler.command = /^(igstalk)$/i;
 
