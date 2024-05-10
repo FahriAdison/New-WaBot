@@ -1,42 +1,45 @@
-import uploadImage from "../lib/uploadImage.js";
-import fetch from "node-fetch";
-import * as fs from "fs";
+import axios from 'axios'
+import uploadImage from '../lib/uploadImage.js'
 
-let handler = async (m, {
-    conn,
-    usedPrefix
-}) => {
-    let q = m.quoted ? m.quoted : m;
-    let mime = (q.msg || q).mimetype || "";
-    if (!mime) throw `Fotonya?`;
-    if (!/image\/(jpe?g|png)/.test(mime)) throw `Mime ${mime} tidak support`;
+let handler = async (m, { conn }) => {
+  let q = m.quoted ? m.quoted : m;
+  let mime = (q.msg || q).mimetype || '';
+  if (/image/.test(mime)) {
+    conn.sendMessage(m.chat, {
+      react: {
+        text: '🕒',
+        key: m.key,
+      }
+    });
     let img = await q.download();
-    let upld = await uploadImage(img);
-    await m.reply(wait);
-    let res = await fetch(
-        `https://api.trace.moe/search?anilistInfo&url=${encodeURIComponent(upld)}`
-    );
-    let json = await res.json();
-    let {
-        id,
-        idMal,
-        title,
-        synonyms,
-        isAdult
-    } = json.result[0].anilist;
-    let {
-        filename,
-        episode,
-        similarity,
-        video,
-        image
-    } = json.result[0];
-    let _result = `*Title :* ${title.romaji} (${title.native})\n*Synonyms :* ${synonyms}\n*Adult :* ${isAdult}\n*Similiarity :* ${(similarity * 100).toFixed(1)}\n*Episode :* ${episode}`;
-    await conn.sendFile(m.chat, image, "wait.jpg", _result, m);
+    let imageUrl = await uploadImage(img);
+    try {
+      let api = `https://api.trace.moe/search?anilistInfo&url=${encodeURIComponent(imageUrl)}`;
+      let { data } = await axios.get(api);
+      let anime = data.result[0].anilist;
+      let episode = data.result[0].episode;
+      let similarity = data.result[0].similarity;
+      let at = new Date(data.result[0].from * 1000).toISOString().substr(11, 12) + ' - ' + new Date(data.result[0].to * 1000).toISOString().substr(11, 12);
+      let malId = anime.idMal;
+      let anilistId = anime.id;
+      let titleRomaji = anime.title.romaji;
+      let titleNative = anime.title.native;
+      let caption = `• *Title:* ${titleRomaji} (${titleNative})
+• *Episode:* ${episode}
+• *Similarity:* ${(similarity * 100).toFixed(2)}%
+• *At:* ${at}`;
+      conn.sendFile(m.chat, imageUrl, 'image.jpg', caption, m);
+    } catch (e) {
+      console.log(e);
+      conn.reply(m.chat, '🐱 Error!', m);
+    }
+  } else {
+    conn.reply(m.chat, '🐱 Please reply to the image', m);
+  }
 };
-handler.help = ["whatanime"];
-handler.tags = ["anime"];
-handler.command = /^(wait|whatanime|source)$/i;
-handler.register = true
-handler.limit = true
-export default handler;
+
+handler.help = ['whatanime'];
+handler.tags = ['anime'];
+handler.command = /^whatanime$/i;
+
+export default handler
