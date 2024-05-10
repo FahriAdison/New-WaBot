@@ -6,7 +6,7 @@ import knights from 'knights-canvas'
 import fetch from 'node-fetch'
 import { smsg } from './lib/simple.js'
 import { unwatchFile, watchFile, readFileSync } from 'fs'
-import fixdelay from './lib/fixdelay.js
+import fixdelay from './lib/fixdelay.js'
 
 const { proto } = (await import('@adiwajshing/baileys')).default
 const isNumber = x => typeof x === 'number' && !isNaN(x)
