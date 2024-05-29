@@ -1251,7 +1251,7 @@ export async function participantsUpdate({
                                 externalAdReply: {
                                     title: htki + (isAddAction ? " Member Join " : " Member Out ") + htka,
                                     body: spaces + bottime,
-                                    sourceUrl: "https://chat.whatsapp.com/JFzipOMAz155jOldBdqUZy",
+                                    sourceUrl: "https://chat.whatsapp.com/HIHR5czG24h0mXNExxzefq",
                                     mediaType: 1,
                                     renderLargerThumbnail: true,
                                     thumbnailUrl: pp,
