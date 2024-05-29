@@ -47,7 +47,7 @@ handler.all = async function (m) {
                     description: '',
                     previewType: "PHOTO",
                     thumbnail: await(await fetch(marin)).buffer(),
-                    sourceUrl: "https://chat.whatsapp.com/JFzipOMAz155jOldBdqUZy",
+                    sourceUrl: "https://chat.whatsapp.com/HIHR5czG24h0mXNExxzefq",
                 },
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363272269077450@newsletter',
