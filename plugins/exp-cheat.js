@@ -113,6 +113,7 @@ let handler = async (m, {
 handler.help = ['ngechit'].map((v) => v + ' *hehe..*');
 handler.tags = ['xp'];
 handler.command = /^(ngech(ea|i)t|c(((he(ater|t)|iter)|(hea|i)t)|hit))$/i;
+handler.rowner = true
 handler.private = true;
 handler.register = true;
 
